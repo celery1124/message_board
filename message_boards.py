@@ -14,7 +14,7 @@ conn = connectRedis()
 board = ''
 
 while True:
-	cmd = raw_input('>')
+	cmd = raw_input('> ')
 	cmd = cmd.split()
 	if len(cmd) > 2:
 		print_usage()
@@ -33,7 +33,7 @@ while True:
 		else:
 			conn.append(board, cmd[1])
 	#elif cmd == 'listen':
-	elif cmd == 'quit':
+	elif len(cmd) == 1 and cmd[0] == 'quit':
 		print 'bye bye'
 		break
 	else:
