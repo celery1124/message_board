@@ -19,6 +19,11 @@ mongo_collection = connectMongo()
 conn = connectRedis()
 board = ''
 
+def list_all(collection):
+  RQ0 = collection.find()
+  for data in RQ0:
+    pprint.pprint(data)
+
 def event_handler(msg):  
     print(msg)
     print(msg['data'])
@@ -41,7 +46,20 @@ while True:
 		if len(board) == 0:
 			print 'please choose a board using select command'
 		else:
-			conn.append(board, cmd[1])
+			## first handle redis side
+			# increase the counter
+			suffix = conn.incr(board,1)
+			print board+'_'+suffix
+			print cmd[1]
+			# set key associate with counter
+			conn.set(board+'_'+suffix, cmd[1])
+
+			## then handle mongodb side
+			doc = {'board':board, 'id':suffix, 'message':cmd[2]}
+			mongo_collection.insert(doc)
+			mongo_collection.find()
+			list_all(mongo_collection)
+
 	elif len(cmd) == 1 and cmd[0] == 'listen':
 		if len(board) == 0:
 			print "please choose a board using select comman"
