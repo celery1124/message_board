@@ -15,7 +15,6 @@ def print_usage():
 	print '\t quit'
 
 def event_handler(msg):
-	print msg
 	op = msg['data']
 	if op == 'set':
 	    key = msg['channel']
@@ -37,6 +36,7 @@ while True:
 	except EOFError:
 		print("Stop listening")
 		listen_flag = False
+		pubsub.unsubscribe('__keyspace@0__:'+board+'_*')
 		thread.stop()
 		continue
 	
@@ -93,9 +93,11 @@ while True:
 	elif len(cmd) == 1 and cmd[0] == 'stop':
 		print 'Stop listening'
 		listen_flag = False
+		pubsub.unsubscribe('__keyspace@0__:'+board+'_*')
 		thread.stop()
 	elif len(cmd) == 1 and cmd[0] == 'quit':
 		try:
+			pubsub.unsubscribe('__keyspace@0__:'+board+'_*')
 		    thread.stop()
 		except NameError:
 			tread = None
