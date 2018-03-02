@@ -5,7 +5,6 @@ import time
 from mongo_connect import connectMongo
 import pymongo
 import json
-import pprint
 
 def print_usage():
 	print 'usage:\tselect <board_name> (select board)'
@@ -15,23 +14,32 @@ def print_usage():
 	print '\t stop (stop listening)'
 	print '\t quit'
 
+def event_handler(msg):
+	print msg
+	op = msg['data']
+	if op == 'set':
+	    key = msg['channel']
+	    key = key.split(':')
+	    print  conn.get(key[1])
+
 mongo_collection = connectMongo()
 conn = connectRedis()
 board = ''
-
-def list_all(collection):
-  RQ0 = collection.find()
-  for data in RQ0:
-    pprint.pprint(data)
-
-def event_handler(msg):
-    key = msg['channel']
-    key = key.split(':')
-    print  conn.get(key[1])
+listen_flag = False
 
 while True:
-	cmd = raw_input('> ')
-	cmd = cmd.split()
+	try:
+		if listen_flag == False:
+			cmd = raw_input('> ')
+		else:
+			cmd = raw_input('')
+		cmd = cmd.split()
+	except EOFError:
+		print("Stop listening")
+		listen_flag = False
+		thread.stop()
+		continue
+	
 	if len(cmd) > 2:
 		print_usage()
 		continue
@@ -65,30 +73,32 @@ while True:
 			## first handle redis side
 			# increase the counter
 			suffix = conn.incr(board,1)
-			print board+'_'+str(suffix)
-			print cmd[1]
 			# set key associate with counter
 			conn.set(board+'_'+str(suffix), cmd[1])
 
 			## then handle mongodb side
 			doc = {'board':board, 'id':str(suffix), 'message':cmd[1]}
 			mongo_collection.insert(doc)
-			mongo_collection.find()
-			list_all(mongo_collection)
+
+			print "write "+cmd[1]+" success!"
 
 	elif len(cmd) == 1 and cmd[0] == 'listen':
+		listen_flag = True
 		if len(board) == 0:
 			print "Please choose a board using select command"
 		else:
 			pubsub = conn.pubsub()
 			pubsub.psubscribe(**{'__keyspace@0__:'+board+'_*': event_handler})  
 			thread = pubsub.run_in_thread(sleep_time=0.01)
-	elif len(cmd) == 1 and cmd[0] == 'quit':
-		print 'bye bye'
-		thread.stop()
 		break
 	elif len(cmd) == 1 and cmd[0] == 'stop':
 		print 'Stop listening'
+		listen_flag = False
 		thread.stop()
+	elif len(cmd) == 1 and cmd[0] == 'quit':
+		try:
+		    thread.stop()
+		except NameError:
+		print 'bye bye'
 	else:
 		print_usage()
