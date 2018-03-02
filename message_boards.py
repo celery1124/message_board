@@ -16,7 +16,7 @@ board = ''
 
 def event_handler(msg):  
     print(msg)
-    thread.stop()  
+    print(msg['data'])
 
 while True:
 	cmd = raw_input('> ')
