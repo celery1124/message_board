@@ -49,13 +49,13 @@ while True:
 			## first handle redis side
 			# increase the counter
 			suffix = conn.incr(board,1)
-			print board+'_'+suffix
+			print board+'_'+str(suffix)
 			print cmd[1]
 			# set key associate with counter
-			conn.set(board+'_'+suffix, cmd[1])
+			conn.set(board+'_'+str(suffix), cmd[1])
 
 			## then handle mongodb side
-			doc = {'board':board, 'id':suffix, 'message':cmd[2]}
+			doc = {'board':board, 'id':str(suffix), 'message':cmd[1]}
 			mongo_collection.insert(doc)
 			mongo_collection.find()
 			list_all(mongo_collection)
