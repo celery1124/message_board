@@ -1,6 +1,7 @@
 import redis
 from  redis_connect import connectRedis
 import constants
+import time
 
 def print_usage():
 	print 'usage:\tselect <board_name> (select board)'
@@ -12,6 +13,10 @@ def print_usage():
 
 conn = connectRedis()
 board = ''
+
+def event_handler(msg):  
+    print(msg)
+    thread.stop()  
 
 while True:
 	cmd = raw_input('> ')
@@ -32,7 +37,13 @@ while True:
 			print 'please choose a board using select command'
 		else:
 			conn.append(board, cmd[1])
-	#elif cmd == 'listen':
+	elif len(cmd) == 1 and cmd[0] == 'listen':
+		if len(board) == 0:
+			print "please choose a board using select comman"
+		else:
+			pubsub = conn.pubsub()
+			pubsub.psubscribe(**{'__keyevent@0__:*': event_handler})  
+			thread = pubsub.run_in_thread(sleep_time=0.01)
 	elif len(cmd) == 1 and cmd[0] == 'quit':
 		print 'bye bye'
 		break
