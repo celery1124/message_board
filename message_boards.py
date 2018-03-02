@@ -42,7 +42,7 @@ while True:
 			print "please choose a board using select comman"
 		else:
 			pubsub = conn.pubsub()
-			pubsub.psubscribe(**{'__keyevent@0__:*': event_handler})  
+			pubsub.psubscribe(**{'__keyspace@0__:'+board: event_handler})  
 			thread = pubsub.run_in_thread(sleep_time=0.01)
 	elif len(cmd) == 1 and cmd[0] == 'quit':
 		print 'bye bye'
