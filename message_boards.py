@@ -90,7 +90,6 @@ while True:
 			pubsub = conn.pubsub()
 			pubsub.psubscribe(**{'__keyspace@0__:'+board+'_*': event_handler})  
 			thread = pubsub.run_in_thread(sleep_time=0.01)
-		break
 	elif len(cmd) == 1 and cmd[0] == 'stop':
 		print 'Stop listening'
 		listen_flag = False
@@ -99,6 +98,8 @@ while True:
 		try:
 		    thread.stop()
 		except NameError:
+			tread = None
 		print 'bye bye'
+		break
 	else:
 		print_usage()
