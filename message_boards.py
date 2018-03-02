@@ -42,19 +42,18 @@ while True:
 		else:
 			## first try read from redis
 			numOfMsg = int(conn.get(board))
-			print numOfMsg
 			# use pipeline to shorten latancy increase throughput
 			pipe = conn.pipeline()
 			for i in range(1,numOfMsg+1):
 				pipe.get(board+'_'+str(i))
 			ret = pipe.execute()
-			print ret
 
 			## then read message not in redis from mongodb
-			for i in range(i,numOfMsg+1):
+			for i in range(1,numOfMsg+1):
 				if ret[i-1] == None:
 					RQ = mongo_collection.find({"board":board,"id":str(i)})
-					pprint.pprint(RQ)
+					for data in RQ:
+						print data['message']
 				else:
 					print ret[i-1]
 
