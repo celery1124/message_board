@@ -3,7 +3,7 @@ import constants
 
 def connectRedis():
 	connection = redis.Redis(
-    host=constants.host,
-    port=constants.port)
+    host=constants.redis_host,
+    port=constants.redis_port)
 	return connection
 

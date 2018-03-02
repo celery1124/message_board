@@ -2,6 +2,10 @@ import redis
 from  redis_connect import connectRedis
 import constants
 import time
+from mongo_connect import connectMongo
+import pymongo
+import json
+import pprint
 
 def print_usage():
 	print 'usage:\tselect <board_name> (select board)'
@@ -11,6 +15,7 @@ def print_usage():
 	print '\t stop (stop listening)'
 	print '\t quit'
 
+mongo_collection = connectMongo()
 conn = connectRedis()
 board = ''
 
