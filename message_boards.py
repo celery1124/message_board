@@ -40,8 +40,24 @@ while True:
 		if len(board) == 0:
 			print 'please choose a board using select command'
 		else:
-			message = conn.get(board)
-			print message
+			## first try read from redis
+			numOfMsg = int(conn.get(board))
+			print numOfMsg
+			# use pipeline to shorten latancy increase throughput
+			pipe = conn.pipeline()
+			for i in range(1,numOfMsg+1):
+				pipe.get(board+'_'+str(i))
+			ret = pipe.execute()
+			print ret
+
+			## then read message not in redis from mongodb
+			for i in range(i,numOfMsg+1):
+				if ret[i-1] == None:
+					RQ = mongo_collection.find({"board":board,"id":str(i)})
+					pprint.pprint(RQ)
+				else:
+					print ret[i-1]
+
 	elif len(cmd) == 2 and cmd[0] == 'write':
 		if len(board) == 0:
 			print 'please choose a board using select command'
