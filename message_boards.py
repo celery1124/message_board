@@ -32,7 +32,7 @@ while True:
 			cmd = raw_input('> ')
 		else:
 			cmd = raw_input('')
-		cmd = cmd.split()
+		cmd = cmd.split(' ', 1)
 	except EOFError:
 		print("Stop listening")
 		listen_flag = False
@@ -50,7 +50,12 @@ while True:
 			print 'Please choose a board using select command'
 		else:
 			## first try read from redis
-			numOfMsg = int(conn.get(board))
+			numOfMsg = conn.get(board)
+			# no message in board do nothing
+			if(numOfMsg == None):
+				continue
+			else:
+				numOfMsg = int(numOfMsg)
 			# use pipeline to shorten latancy increase throughput
 			pipe = conn.pipeline()
 			for i in range(1,numOfMsg+1):
@@ -91,14 +96,14 @@ while True:
 			pubsub.psubscribe(**{'__keyspace@0__:'+board+'_*': event_handler})  
 			thread = pubsub.run_in_thread(sleep_time=0.01)
 	elif len(cmd) == 1 and cmd[0] == 'stop':
-		print 'Stop listening'
-		listen_flag = False
-		pubsub.unsubscribe('__keyspace@0__:'+board+'_*')
-		thread.stop()
+		if listen_flag == True:
+			print 'Stop listening'
+			listen_flag = False
+			pubsub.unsubscribe('__keyspace@0__:'+board+'_*')
+			thread.stop()
 	elif len(cmd) == 1 and cmd[0] == 'quit':
 		try:
-			pubsub.unsubscribe('__keyspace@0__:'+board+'_*')
-		    thread.stop()
+			thread.stop()
 		except NameError:
 			tread = None
 		print 'bye bye'
