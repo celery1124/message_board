@@ -38,7 +38,7 @@ while True:
 		board = cmd[1]
 	elif len(cmd) == 1 and cmd[0] == 'read':
 		if len(board) == 0:
-			print 'please choose a board using select command'
+			print 'Please choose a board using select command'
 		else:
 			## first try read from redis
 			numOfMsg = int(conn.get(board))
@@ -59,7 +59,7 @@ while True:
 
 	elif len(cmd) == 2 and cmd[0] == 'write':
 		if len(board) == 0:
-			print 'please choose a board using select command'
+			print 'Please choose a board using select command'
 		else:
 			## first handle redis side
 			# increase the counter
@@ -77,13 +77,17 @@ while True:
 
 	elif len(cmd) == 1 and cmd[0] == 'listen':
 		if len(board) == 0:
-			print "please choose a board using select comman"
+			print "Please choose a board using select command"
 		else:
 			pubsub = conn.pubsub()
-			pubsub.psubscribe(**{'__keyspace@0__:'+board: event_handler})  
+			pubsub.psubscribe(**{'__keyspace@0__:'+board_*: event_handler})  
 			thread = pubsub.run_in_thread(sleep_time=0.01)
 	elif len(cmd) == 1 and cmd[0] == 'quit':
 		print 'bye bye'
+		thread.stop()
 		break
+	elif len(cmd) == 1 and cmd[0] == 'quit':
+		print 'Stop listening'
+		thread.stop()
 	else:
 		print_usage()
