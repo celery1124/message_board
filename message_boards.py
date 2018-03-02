@@ -25,8 +25,9 @@ def list_all(collection):
     pprint.pprint(data)
 
 def event_handler(msg):
-    key = msg['data']
-    print  conn.get(key)
+    key = msg['channel']
+    key = key.split(':')
+    print  conn.get(key[1])
 
 while True:
 	cmd = raw_input('> ')
@@ -86,7 +87,7 @@ while True:
 		print 'bye bye'
 		thread.stop()
 		break
-	elif len(cmd) == 1 and cmd[0] == 'quit':
+	elif len(cmd) == 1 and cmd[0] == 'stop':
 		print 'Stop listening'
 		thread.stop()
 	else:
