@@ -24,9 +24,9 @@ def list_all(collection):
   for data in RQ0:
     pprint.pprint(data)
 
-def event_handler(msg):  
-    print(msg)
-    print(msg['data'])
+def event_handler(msg):
+    key = msg['data']
+    print  conn.get(key)
 
 while True:
 	cmd = raw_input('> ')
