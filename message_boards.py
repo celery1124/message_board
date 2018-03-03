@@ -53,7 +53,9 @@ while True:
 			numOfMsg = conn.get(board)
 			# no message in board do nothing
 			if(numOfMsg == None):
-				continue
+				# two case, 1-nomessage in board, 2-counter record evict from Redis
+				numOfMsg=mongo_collection.find({"board":board}).count()
+				conn.set(board, str(numOfMsg))
 			else:
 				numOfMsg = int(numOfMsg)
 			# use pipeline to shorten latancy increase throughput
@@ -67,6 +69,8 @@ while True:
 				if ret[i-1] == None:
 					RQ = mongo_collection.find({"board":board,"id":str(i)})
 					for data in RQ:
+						# write to Redis for further use
+						conn.set(board+'_'+str(i), data['message'])
 						print data['message']
 				else:
 					print ret[i-1]
