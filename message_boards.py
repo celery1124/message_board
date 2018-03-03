@@ -34,10 +34,16 @@ while True:
 			cmd = raw_input('')
 		cmd = cmd.split(' ', 1)
 	except EOFError:
-		print("Stop listening")
-		listen_flag = False
-		pubsub.unsubscribe('__keyspace@0__:'+board+'_*')
-		thread.stop()
+		if len(board) == 0:
+			print 'Please choose a board using select command'
+		else:
+			if listen_flag == True:
+				print 'Stop listening'
+				listen_flag = False
+				pubsub.unsubscribe('__keyspace@0__:'+board+'_*')
+				thread.stop()
+			else:
+				print "Not listening"
 		continue
 	
 	if len(cmd) > 2:
@@ -100,11 +106,16 @@ while True:
 			pubsub.psubscribe(**{'__keyspace@0__:'+board+'_*': event_handler})  
 			thread = pubsub.run_in_thread(sleep_time=0.01)
 	elif len(cmd) == 1 and cmd[0] == 'stop':
-		if listen_flag == True:
-			print 'Stop listening'
-			listen_flag = False
-			pubsub.unsubscribe('__keyspace@0__:'+board+'_*')
-			thread.stop()
+		if len(board) == 0:
+			print 'Please choose a board using select command'
+		else:
+			if listen_flag == True:
+				print 'Stop listening'
+				listen_flag = False
+				pubsub.unsubscribe('__keyspace@0__:'+board+'_*')
+				thread.stop()
+			else:
+				print "Not listening"
 	elif len(cmd) == 1 and cmd[0] == 'quit':
 		try:
 			thread.stop()
