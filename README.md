@@ -16,3 +16,6 @@ $ python message_boards.py
 ```
 3) Usage instructions
 The application provides enough error handling and are friendly to user.
+
+
+Detailed implementation notes please reference the [report](./report.pdf)
